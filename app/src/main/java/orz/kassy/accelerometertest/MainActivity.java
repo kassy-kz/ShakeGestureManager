@@ -515,15 +515,15 @@ public class MainActivity extends AppCompatActivity {
         String time = sdf.format(Calendar.getInstance().getTime());
 
         try {
-//            mFilewriter.write(time + ", "
-//                                + mAccelX + ", " + mAccelY + ", " + mAccelZ + ", "
-//                                + mGyroX + ", " + mGyroY + ", " + mGyroZ + ", "
-//                                + mLinearAccelX + ", " + mLinearAccelY + ", " + mLinearAccelZ + ", "
-//                                + mGravityX + ", " + mGravityY + ", " + mGravityZ + ", "
-//                                + mRollY + ", " + mRollY2 + ", " + mFilterRoll2  + "\n");
             mFilewriter.write(time + ", "
-                                + mAtan + ", " + mGravityAngle + ", " + mDeviceRoll + ", "
-                                + mAccelAngle + ", " + mSlashAngle + "\n");
+                                + mAccelX + ", " + mAccelY + ", " + mAccelZ + ", "
+                                + mGyroX + ", " + mGyroY + ", " + mGyroZ + ", "
+                                + mLinearAccelX + ", " + mLinearAccelY + ", " + mLinearAccelZ + ", "
+                                + mGravityX + ", " + mGravityY + ", " + mGravityZ + ", "
+                                + mRotationX + ", " + mRotationY + ", " + mRotationZ  + "\n");
+//            mFilewriter.write(time + ", "
+//                                + mAtan + ", " + mGravityAngle + ", " + mDeviceRoll + ", "
+//                                + mAccelAngle + ", " + mSlashAngle + "\n");
 
         } catch (IOException e) {
             e.printStackTrace();
