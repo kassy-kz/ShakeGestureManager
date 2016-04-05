@@ -367,6 +367,10 @@ public class MainActivity extends AppCompatActivity {
                         int accelAngle = atan2;
                         int slashAngle = (accelAngle + deviceRoll) >= 0 ? accelAngle + deviceRoll : accelAngle + deviceRoll + 360;
 
+                        if (slashAngle > 360) {
+                            slashAngle -= 360;
+                        }
+
                         if (0 <= slashAngle && slashAngle <= 45) {
                             Log.i(TAG, "右方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle +", SlashAngle:" + slashAngle);
                             mTxtSlashStrike.setText("右方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle +", SlashAngle:" + slashAngle);
@@ -381,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                             mTxtSlashStrike.setText("下方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle + ", SlashAngle:" + slashAngle);
                         } else if (slashAngle <= 360) {
                             Log.i(TAG, "右方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle +", SlashAngle:" + slashAngle);
-                            mTxtSlashStrike.setText("右方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle +", SlashAngle:" + slashAngle);
+                            mTxtSlashStrike.setText("右方向へのスラッシュストライク！ " + mFilterTotalAccel + ", DeviceRoll:" + deviceRoll + ", AccelAngle:" + accelAngle + ", SlashAngle:" + slashAngle);
                         }
 
                         mSlashFlag = true;
@@ -438,6 +442,9 @@ public class MainActivity extends AppCompatActivity {
                 int atan2 = (int) Math.toDegrees(Math.atan2(mLinearAccelZ, mLinearAccelX));
                 int accelAngle = atan2;
                 int slashAngle = (accelAngle + deviceRoll) >= 0 ? accelAngle + deviceRoll : accelAngle + deviceRoll + 360;
+                if (slashAngle > 360) {
+                    slashAngle -= 360;
+                }
 
                 mAtan = atan;
                 mGravityAngle = gravityAngle;
@@ -451,6 +458,7 @@ public class MainActivity extends AppCompatActivity {
                 mTxtAccelAngle.setText("accel angle : " + accelAngle);
                 mTxtSlashAngle.setText("slash angle : " + slashAngle);
             }
+
             /**
              * Gravity Sensor
              */
@@ -462,6 +470,7 @@ public class MainActivity extends AppCompatActivity {
                 mTxtGravityY.setText("y : " + String.format("%.3f", event.values[1]));
                 mTxtGravityZ.setText("z : " + String.format("%.3f", event.values[2]));
             }
+
             /**
              * rotation
              */
