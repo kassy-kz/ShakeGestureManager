@@ -254,18 +254,7 @@
         android:text="stop"/>
 
     <TextView
-        android:layout_marginTop="16dp"
-        android:id="@+id/txtExp1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="exp1 : "/>
-    <TextView
-        android:id="@+id/txtExp2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="exp2 : "/>
-    <TextView
-        android:id="@+id/txtSlashStrike"
+        android:id="@+id/txtMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="slash : "/>
