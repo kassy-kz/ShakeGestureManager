@@ -251,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
     private int mSlashAngle;
     private float mOldLinearAccelZ;
 
+    private int mDurationAve = 0;
     SensorEventListener mAccelListener = new SensorEventListener() {
         //THRESHOLD ある値以上を検出するための閾値
         protected final static double THRESHOLD=4.0;
@@ -493,7 +494,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-
                 if (mNowDetecting) {
                     // 山を検知した
                     if (mOldLinearAccelZ > mLinearAccelZ && mLinearAccelZ > 0) {
@@ -508,6 +508,16 @@ public class MainActivity extends AppCompatActivity {
                         // 山情報を確定する
                         Log.i(TAG, "add mountain list : " + mTmpFeaturePoint.getTime() + ", " + mTmpFeaturePoint.getValue());
                         mountainFPListZ.add(mTmpFeaturePoint);
+                        mShakeCount++;
+                        if (mountainFPListZ.size() > 3) {
+                            mDurationAve = computeAveDuration(mountainFPListZ);
+                            if (mDurationAve > 300) {
+                                Log.i(TAG, "これはツイスト : " + mountainFPListZ.size() + "回目");
+                            } else {
+                                Log.i(TAG, "これはシェイク : " + mountainFPListZ.size() + "回目");
+                            }
+
+                        }
                         // 仮山情報リセット（適当な値にしておくか）
                         mTmpFeaturePoint = new FeaturePoint(0, 1);
                     }
@@ -544,6 +554,18 @@ public class MainActivity extends AppCompatActivity {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
+
+    /**
+     * 山の間隔の平均を出す
+     * @param pointList
+     */
+    private int computeAveDuration(ArrayList<FeaturePoint> pointList) {
+        int sum =0;
+        for (int i=1; i<pointList.size(); i++) {
+            sum += (pointList.get(i).getTime() - pointList.get(i-1).getTime());
+        }
+        return sum / (pointList.size()-1);
+    }
 
     private int radianToDegrees(float angrad) {
         return (int) Math.floor(angrad >= 0 ? Math.toDegrees(angrad) : 360 + Math.toDegrees(angrad));
