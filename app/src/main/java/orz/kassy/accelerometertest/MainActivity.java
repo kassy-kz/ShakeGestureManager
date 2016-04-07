@@ -116,32 +116,12 @@ public class MainActivity extends AppCompatActivity {
     private float mGravityY = 1.f;
     private float mGravityZ = 1.f;
 
-    private float mFilterAccelX = 0.f;
-    private float mFilterAccelY = 0.f;
-    private float mFilterAccelZ = 0.f;
-    private int mFilterRoll2 = 0;
     private float mFilterTotalAccel = 0.f;
 
     private float mGyroX = 0.f;
     private float mGyroY = 0.f;
     private float mGyroZ = 0.f;
     private FileWriter mFilewriter = null;
-
-    /** 地磁気行列 */
-    private float[] mMagneticValues;
-    /** 加速度行列 */
-    private float[] mAccelerometerValues;
-
-    /** X軸の回転角度 */
-    private int mPitchX;
-    /** Y軸の回転角度 */
-    private int mRollY;
-    private int mRollY2;
-    /** Z軸の回転角度(方位角) */
-    private int mAzimuthZ;
-
-    // スラッシュ前、静止状態の端末の角度、もっとも重要なのはRoll
-    private float mStateRoll = 0.f;
 
     // 静止状態の加速度の振れ範囲 9.8プラスマイナスいくらか、テキトー
     private static final float STATE_ACCEL_RANGE = 0.5f;
@@ -163,9 +143,7 @@ public class MainActivity extends AppCompatActivity {
     // Feature Point
     private ArrayList<FeaturePoint> mountainFPListZ;
     private boolean mNowDetecting = false;
-    private boolean mNowMountDetecting = false;
     private FeaturePoint mTmpFeaturePoint;
-    private int mShakeCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,50 +231,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int mDurationAve = 0;
     SensorEventListener mAccelListener = new SensorEventListener() {
-        //THRESHOLD ある値以上を検出するための閾値
-        protected final static double THRESHOLD=4.0;
-        protected final static double THRESHOLD_MIN=1;
-
-        //low pass filter alpha ローパスフィルタのアルファ値
-        protected final static float alpha= 0.8f;
-
-        //端末が実際に取得した加速度値。重力加速度も含まれる。This values include gravity force.
-        private float[] currentOrientationValues = { 0.0f, 0.0f, 0.0f };
-        //ローパス、ハイパスフィルタ後の加速度値 Values after low pass and high pass filter
-        private float[] currentAccelerationValues = { 0.0f, 0.0f, 0.0f };
-
-        //diff 差分
-        private float dx=0.0f;
-        private float dy=0.0f;
-        private float dz=0.0f;
-
-        //previous data 1つ前の値
-        private float old_x=0.0f;
-        private float old_y=0.0f;
-        private float old_z=0.0f;
-
-        //ベクトル量
-        private double vectorSize=0;
-
-        //カウンタ
-        long counter=0;
-
-        //一回目のゆれを省くカウントフラグ（一回の端末の揺れで2回データが取れてしまうのを防ぐため）
-        //count flag to prevent aquiring data twice with one movement of a device
-        boolean counted=false;
-
-        // X軸加速方向
-        boolean vecx = true;
-        // Y軸加速方向
-        boolean vecy = true;
-        // Z軸加速方向
-        boolean vecz = true;
-
-
-        //ノイズ対策
-        boolean noiseflg=true;
-        //ベクトル量(最大値)
-        private double vectorSize_max=0;
 
         @Override
         public void onSensorChanged(SensorEvent event) {
@@ -305,65 +239,12 @@ public class MainActivity extends AppCompatActivity {
              */
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 // 基本の加速度入力
-                mAccelX = event.values[SensorManager.DATA_X];
-                mAccelY = event.values[SensorManager.DATA_Y];
-                mAccelZ = event.values[SensorManager.DATA_Z];
-                mTxtAccelX.setText("x : " + String.format("%.3f", event.values[SensorManager.DATA_X]));
-                mTxtAccelY.setText("y : " + String.format("%.3f", event.values[SensorManager.DATA_Y]));
-                mTxtAccelZ.setText("z : " + String.format("%.3f", event.values[SensorManager.DATA_Z]));
-
-                // 自前でRoll角を出してみる
-                mRollY2 = (int) Math.toDegrees(Math.atan2(mAccelX, mAccelZ));
-                mTxtRoll2.setText("roll2 : " + mRollY2);
-
-                // 加速度センサー
-                mAccelerometerValues = event.values.clone();
-
-                // 端末の角度の計算
-                if (mMagneticValues != null && mAccelerometerValues != null) {
-
-                    float[] rotationMatrix = new float[16];
-                    float[] inclinationMatrix = new float[16];
-                    float[] remapedMatrix = new float[16];
-                    float[] orientationValues = new float[3];
-
-                    // 加速度センサーと地磁気センサーから回転行列を取得
-                    SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, mAccelerometerValues, mMagneticValues);
-                    SensorManager.remapCoordinateSystem(rotationMatrix, SensorManager.AXIS_X, SensorManager.AXIS_Z, remapedMatrix);
-                    SensorManager.getOrientation(remapedMatrix, orientationValues);
-
-                    // ラジアン値を変換し、それぞれの回転角度を取得する
-                    mAzimuthZ = radianToDegrees(orientationValues[0]);
-                    mPitchX = radianToDegrees(orientationValues[1]);
-                    mRollY = radianToDegrees(orientationValues[2]);
-                    mTxtPitch.setText("pitch : " + mPitchX);
-                    mTxtRoll.setText("roll : " + mRollY);
-                    mTxtAzimuth.setText("azimuth : " + mAzimuthZ);
-                }
-
-                // ローパスハイパスフィルター
-                {
-                    // ローパスフィルタで重力値を抽出　Isolate the force of gravity with the low-pass filter.
-                    currentOrientationValues[0] = event.values[0] * 0.1f + currentOrientationValues[0] * (1.0f - 0.1f);
-                    currentOrientationValues[1] = event.values[1] * 0.1f + currentOrientationValues[1] * (1.0f - 0.1f);
-                    currentOrientationValues[2] = event.values[2] * 0.1f + currentOrientationValues[2] * (1.0f - 0.1f);
-
-                    // 重力の値を省くRemove the gravity contribution with the high-pass filter.
-                    currentAccelerationValues[0] = event.values[0] - currentOrientationValues[0];
-                    currentAccelerationValues[1] = event.values[1] - currentOrientationValues[1];
-                    currentAccelerationValues[2] = event.values[2] - currentOrientationValues[2];
-
-                    // 記載
-                    mTxtAccelX2.setText("x2 : " + String.format("%.3f", currentAccelerationValues[0]));
-                    mTxtAccelY2.setText("y2 : " + String.format("%.3f", currentAccelerationValues[1]));
-                    mTxtAccelZ2.setText("z2 : " + String.format("%.3f", currentAccelerationValues[2]));
-                    mFilterAccelX = currentAccelerationValues[0];
-                    mFilterAccelY = currentAccelerationValues[1];
-                    mFilterAccelZ = currentAccelerationValues[2];
-
-                    // 自前でRoll角出す
-                    mFilterRoll2 = (int) Math.toDegrees(Math.atan2(mFilterAccelX, mFilterAccelZ));
-                }
+                mAccelX = event.values[0];
+                mAccelY = event.values[1];
+                mAccelZ = event.values[2];
+                mTxtAccelX.setText("x : " + String.format("%.3f", event.values[0]));
+                mTxtAccelY.setText("y : " + String.format("%.3f", event.values[1]));
+                mTxtAccelZ.setText("z : " + String.format("%.3f", event.values[2]));
 
                 /**
                  * kassy add スラッシュ動作の検知を頑張る
@@ -372,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
                 mFilterTotalAccel = (float)Math.sqrt(Math.pow(mLinearAccelX, 2) + Math.pow(mLinearAccelY, 2) + Math.pow(mLinearAccelZ, 2));
                 if (mFilterTotalAccel < STATE_ACCEL_RANGE) {
                     mTxtExp1.setText("Now State");
-                    mStateRoll = mRollY2;
                 }
                 // スラッシュしきい値超えた（スラッシュ開始）
                 else if (mFilterTotalAccel > SLASH_ACCEL) {
@@ -425,20 +305,19 @@ public class MainActivity extends AppCompatActivity {
              * ジャイロセンサー
              */
             if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-                mGyroX = event.values[SensorManager.DATA_X];
-                mGyroY = event.values[SensorManager.DATA_Y];
-                mGyroZ = event.values[SensorManager.DATA_Z];
-                mTxtGyroX.setText("x : " + String.format("%.3f", event.values[SensorManager.DATA_X]));
-                mTxtGyroY.setText("y : " + String.format("%.3f", event.values[SensorManager.DATA_Y]));
-                mTxtGyroZ.setText("z : " + String.format("%.3f", event.values[SensorManager.DATA_Z]));
+                mGyroX = event.values[0];
+                mGyroY = event.values[1];
+                mGyroZ = event.values[2];
+                mTxtGyroX.setText("x : " + String.format("%.3f", event.values[0]));
+                mTxtGyroY.setText("y : " + String.format("%.3f", event.values[1]));
+                mTxtGyroZ.setText("z : " + String.format("%.3f", event.values[2]));
             }
 
             /**
              * 地磁気センサー
              */
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                // 地磁気センサー
-                mMagneticValues = event.values.clone();
+                // do nothing
             }
 
             /**
@@ -475,17 +354,18 @@ public class MainActivity extends AppCompatActivity {
                 mTxtAccelAngle.setText("accel angle : " + accelAngle);
                 mTxtSlashAngle.setText("slash angle : " + slashAngle);
 
-                if (getTotal(mLinearAccelX, mLinearAccelY, mLinearAccelZ) > 15 && mNowDetecting == false) {
+                if (computeVectorLength(mLinearAccelX, mLinearAccelY, mLinearAccelZ) > 15 && mNowDetecting == false) {
                     mNowDetecting = true;
-                    mShakeCount = 0;
-                    mNowMountDetecting = true;
                     mountainFPListZ = new ArrayList<FeaturePoint>();
                     Log.i(TAG, "シェイクないしぐるぐるを検知しました");
+
+                    // まずツイストに設定しておく
+                    mGestureType = GESTURE_TYPE_TWIST;
 
                     // 仮山情報リセット（適当な値にしておくか）
                     mTmpFeaturePoint = new FeaturePoint(0, 1);
 
-                } else if (getTotal(mLinearAccelX, mLinearAccelY, mLinearAccelZ) < 15 && mNowDetecting){
+                } else if (computeVectorLength(mLinearAccelX, mLinearAccelY, mLinearAccelZ) < 15 && mNowDetecting){
                     mNowDetecting = false;
                     Log.i(TAG, "シェイクないしぐるぐるの終了を検知しました");
                     if (mountainFPListZ != null && mountainFPListZ.size() > 0) {
@@ -508,18 +388,26 @@ public class MainActivity extends AppCompatActivity {
                         // 山情報を確定する
                         Log.i(TAG, "add mountain list : " + mTmpFeaturePoint.getTime() + ", " + mTmpFeaturePoint.getValue());
                         mountainFPListZ.add(mTmpFeaturePoint);
-                        mShakeCount++;
                         if (mountainFPListZ.size() > 3) {
                             mDurationAve = computeAveDuration(mountainFPListZ);
-                            if (mDurationAve > 300) {
-                                Log.i(TAG, "これはツイスト : " + mountainFPListZ.size() + "回目");
-                            } else {
-                                Log.i(TAG, "これはシェイク : " + mountainFPListZ.size() + "回目");
+//                            if (mDurationAve > 300) {
+//                                Log.i(TAG, "これはツイスト : " + mountainFPListZ.size() + "回目 dur:" + mDurationAve);
+//                            } else {
+//                                Log.i(TAG, "これはシェイク : " + mountainFPListZ.size() + "回目 dur:" + mDurationAve);
+//                            }
+                            if (mGestureType == GESTURE_TYPE_TWIST) {
+                                Log.i(TAG, "これはツイスト : " + mountainFPListZ.size() + "回目 dur:" + mDurationAve);
+                            } else if (mGestureType == GESTURE_TYPE_SHAKE) {
+                                Log.i(TAG, "これはシェイク : " + mountainFPListZ.size() + "回目 dur:" + mDurationAve);
                             }
-
                         }
                         // 仮山情報リセット（適当な値にしておくか）
                         mTmpFeaturePoint = new FeaturePoint(0, 1);
+                    }
+
+                    if (mLinearAccelY > 0) {
+                        mGestureType = GESTURE_TYPE_SHAKE;
+                        Log.i(TAG, "ああ、これはシェイクだ");
                     }
                 }
                 mOldLinearAccelZ = mLinearAccelZ;
@@ -599,9 +487,6 @@ public class MainActivity extends AppCompatActivity {
                                 + mLinearAccelX + ", " + mLinearAccelY + ", " + mLinearAccelZ + ", "
                                 + mGravityX + ", " + mGravityY + ", " + mGravityZ + ", "
                                 + mRotationX + ", " + mRotationY + ", " + mRotationZ  + "\n");
-//            mFilewriter.write(time + ", "
-//                                + mAtan + ", " + mGravityAngle + ", " + mDeviceRoll + ", "
-//                                + mAccelAngle + ", " + mSlashAngle + "\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -618,7 +503,14 @@ public class MainActivity extends AppCompatActivity {
         mFilewriter = null;
     }
 
-    private double getTotal(double valueX, double valueY, double valueZ) {
+    /**
+     * ベクトルの長さを出す
+     * @param valueX
+     * @param valueY
+     * @param valueZ
+     * @return
+     */
+    private double computeVectorLength(double valueX, double valueY, double valueZ) {
         return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
     }
 
