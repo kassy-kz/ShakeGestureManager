@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
@@ -144,14 +145,27 @@ public class MainActivity extends AppCompatActivity {
 
     // 静止状態の加速度の振れ範囲 9.8プラスマイナスいくらか、テキトー
     private static final float STATE_ACCEL_RANGE = 0.5f;
-    // 重力加速度
-    private static final float ACCEL_G = 9.8f;
     // スラッシュのしきい値となる加速度
     private static final float SLASH_ACCEL = 40.0f;
 
-    private boolean mIsState = false;
     private boolean mSlashFlag = false;
     private Handler mHandler;
+
+    // ジェスチャーのタイプ
+    private int mGestureType = 0;
+    private static final int GESTURE_TYPE_SHAKE = 1;
+    private static final int GESTURE_TYPE_TWIST = 2;
+    private static final int GESTURE_TYPE_SLASH = 3;
+
+    /**
+     * 振動の検知をがんばるお
+     */
+    // Feature Point
+    private ArrayList<FeaturePoint> mountainFPListZ;
+    private boolean mNowDetecting = false;
+    private boolean mNowMountDetecting = false;
+    private FeaturePoint mTmpFeaturePoint;
+    private int mShakeCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Handler
         mHandler = new Handler();
+
+        // FeaturePoint
+
     }
 
     @Override
@@ -232,6 +249,8 @@ public class MainActivity extends AppCompatActivity {
     private int mDeviceRoll;
     private int mAccelAngle;
     private int mSlashAngle;
+    private float mOldLinearAccelZ;
+
     SensorEventListener mAccelListener = new SensorEventListener() {
         //THRESHOLD ある値以上を検出するための閾値
         protected final static double THRESHOLD=4.0;
@@ -351,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
                 // 静止してるか否か判定
                 mFilterTotalAccel = (float)Math.sqrt(Math.pow(mLinearAccelX, 2) + Math.pow(mLinearAccelY, 2) + Math.pow(mLinearAccelZ, 2));
                 if (mFilterTotalAccel < STATE_ACCEL_RANGE) {
-                    mIsState = true;
                     mTxtExp1.setText("Now State");
                     mStateRoll = mRollY2;
                 }
@@ -398,8 +416,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 } else {
-                    // こっちが揺れるな...
-                    mIsState = false;
                     mTxtExp1.setText("Now Moving");
                 }
             }
@@ -457,6 +473,46 @@ public class MainActivity extends AppCompatActivity {
                 mTxtDeviceRoll.setText("device roll : " + deviceRoll);
                 mTxtAccelAngle.setText("accel angle : " + accelAngle);
                 mTxtSlashAngle.setText("slash angle : " + slashAngle);
+
+                if (getTotal(mLinearAccelX, mLinearAccelY, mLinearAccelZ) > 15 && mNowDetecting == false) {
+                    mNowDetecting = true;
+                    mShakeCount = 0;
+                    mNowMountDetecting = true;
+                    mountainFPListZ = new ArrayList<FeaturePoint>();
+                    Log.i(TAG, "シェイクないしぐるぐるを検知しました");
+
+                    // 仮山情報リセット（適当な値にしておくか）
+                    mTmpFeaturePoint = new FeaturePoint(0, 1);
+
+                } else if (getTotal(mLinearAccelX, mLinearAccelY, mLinearAccelZ) < 15 && mNowDetecting){
+                    mNowDetecting = false;
+                    Log.i(TAG, "シェイクないしぐるぐるの終了を検知しました");
+                    if (mountainFPListZ != null && mountainFPListZ.size() > 0) {
+                        for (int i = 0; i < mountainFPListZ.size(); i++) {
+                            Log.i(TAG, "シェイクの山は " + mountainFPListZ.get(i).getTime() + ", " + mountainFPListZ.get(i).getValue());
+                        }
+                    }
+                }
+
+                if (mNowDetecting) {
+                    // 山を検知した
+                    if (mOldLinearAccelZ > mLinearAccelZ && mLinearAccelZ > 0) {
+                        // その山が今までで一番大きい -> 仮山情報を更新する
+                        if (mTmpFeaturePoint != null && mLinearAccelZ > mTmpFeaturePoint.getValue()) {
+                            long time = System.currentTimeMillis();
+                            Log.i(TAG, "create tmp mount time:" + time + ", value:" + mLinearAccelZ );
+                            mTmpFeaturePoint = new FeaturePoint(time, mLinearAccelZ);
+                        }
+                    }
+                    if (mLinearAccelZ < 0 && mTmpFeaturePoint.getValue() > 2) {
+                        // 山情報を確定する
+                        Log.i(TAG, "add mountain list : " + mTmpFeaturePoint.getTime() + ", " + mTmpFeaturePoint.getValue());
+                        mountainFPListZ.add(mTmpFeaturePoint);
+                        // 仮山情報リセット（適当な値にしておくか）
+                        mTmpFeaturePoint = new FeaturePoint(0, 1);
+                    }
+                }
+                mOldLinearAccelZ = mLinearAccelZ;
             }
 
             /**
@@ -540,19 +596,8 @@ public class MainActivity extends AppCompatActivity {
         mFilewriter = null;
     }
 
-    public static float minusDegree(float d1, float d2) {
-        float dr1, dr2;
-
-        if(d1 >= d2) {
-            dr1 = d1;
-            dr2 = d2;
-        } else {
-            dr1 = d1 + 360;
-            dr2 = d2;
-        }
-        return dr1 - dr2;
+    private double getTotal(double valueX, double valueY, double valueZ) {
+        return Math.sqrt(Math.pow(valueX, 2) + Math.pow(valueY, 2) + Math.pow(valueZ, 2));
     }
-
-
 
 }
