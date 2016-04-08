@@ -7,9 +7,9 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import orz.kassy.twistgesture.TwistGestureManager;
+import orz.kassy.shakegesture.ShakeGestureManager;
 
-public class MainActivity extends AppCompatActivity implements TwistGestureManager.GestureListener {
+public class MainActivity extends AppCompatActivity implements ShakeGestureManager.GestureListener {
 
     private static final String TAG = "MainActivity";
 
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements TwistGestureManag
     @InjectView(R.id.txtAzimuth)
     TextView mTxtAzimuth;
 
-    private TwistGestureManager mGestureManager;
+    private ShakeGestureManager mGestureManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements TwistGestureManag
         setContentView(R.layout.activity_main);
 
         // 加速度センサー
-        mGestureManager = new TwistGestureManager(this, this);
+        mGestureManager = new ShakeGestureManager(this, this);
 
         // ButterKnife
         ButterKnife.inject(this);
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements TwistGestureManag
     }
 
     /**
-     * From TwistGestureManager
+     * From ShakeGestureManager
      *
      * @param gestureType
      * @param gestureCount

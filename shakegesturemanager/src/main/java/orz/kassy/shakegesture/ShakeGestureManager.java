@@ -1,4 +1,4 @@
-package orz.kassy.twistgesture;
+package orz.kassy.shakegesture;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -21,7 +21,7 @@ import java.util.TimerTask;
 /**
  * Created by kashimoto on 16/04/07.
  */
-public class TwistGestureManager {
+public class ShakeGestureManager {
 
     private static final String TAG = "Gesture";
     private static final int NON_DETECTION_TIME = 600;
@@ -89,7 +89,7 @@ public class TwistGestureManager {
      * @param context
      * @param listener
      */
-    public TwistGestureManager(Context context, GestureListener listener) {
+    public ShakeGestureManager(Context context, GestureListener listener) {
         mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
         mListener = listener;
         mHandler = new Handler();

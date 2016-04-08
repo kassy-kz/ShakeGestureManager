@@ -1,4 +1,4 @@
-package orz.kassy.twistgesture;
+package orz.kassy.shakegesture;
 
 /**
  * Created by kashimoto on 16/04/05.

@@ -1,4 +1,4 @@
-package orz.kassy.twistgesture;
+package orz.kassy.shakegesture;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

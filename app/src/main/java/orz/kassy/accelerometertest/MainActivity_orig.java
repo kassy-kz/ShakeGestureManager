@@ -23,7 +23,7 @@ import java.util.TimerTask;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import orz.kassy.twistgesture.FeaturePoint;
+import orz.kassy.shakegesture.FeaturePoint;
 
 public class MainActivity_orig extends AppCompatActivity {
 
