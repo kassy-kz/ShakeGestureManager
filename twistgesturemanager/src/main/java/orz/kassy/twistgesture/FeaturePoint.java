@@ -1,4 +1,4 @@
-package orz.kassy.accelerometertest;
+package orz.kassy.twistgesture;
 
 /**
  * Created by kashimoto on 16/04/05.

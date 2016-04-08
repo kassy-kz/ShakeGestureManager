@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AccelerometerTest.iml" filepath="$PROJECT_DIR$/AccelerometerTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/twistgesturemanager/twistgesturemanager.iml" filepath="$PROJECT_DIR$/twistgesturemanager/twistgesturemanager.iml" />
     </modules>
   </component>
 </project>

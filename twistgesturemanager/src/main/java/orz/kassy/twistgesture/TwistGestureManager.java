@@ -1,4 +1,4 @@
-package orz.kassy.accelerometertest;
+package orz.kassy.twistgesture;
 
 import android.content.Context;
 import android.hardware.Sensor;

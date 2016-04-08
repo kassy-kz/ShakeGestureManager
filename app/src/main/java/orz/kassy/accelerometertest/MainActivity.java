@@ -7,6 +7,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import orz.kassy.twistgesture.TwistGestureManager;
 
 public class MainActivity extends AppCompatActivity implements TwistGestureManager.GestureListener {
 

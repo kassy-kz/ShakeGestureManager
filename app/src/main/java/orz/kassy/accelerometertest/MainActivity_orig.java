@@ -23,11 +23,13 @@ import java.util.TimerTask;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import orz.kassy.twistgesture.FeaturePoint;
 
 public class MainActivity_orig extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private SensorManager mSensorManager;
+
 
     /**
      * UI部品
