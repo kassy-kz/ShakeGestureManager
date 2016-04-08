@@ -1,27 +1,14 @@
 package orz.kassy.accelerometertest;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements KassyGestureManager.GestureListener {
+public class MainActivity extends AppCompatActivity implements TwistGestureManager.GestureListener {
 
     private static final String TAG = "MainActivity";
 
@@ -93,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements KassyGestureManag
     @InjectView(R.id.txtAzimuth)
     TextView mTxtAzimuth;
 
-    private KassyGestureManager mGestureManager;
+    private TwistGestureManager mGestureManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements KassyGestureManag
         setContentView(R.layout.activity_main);
 
         // 加速度センサー
-        mGestureManager = new KassyGestureManager(this, this);
+        mGestureManager = new TwistGestureManager(this, this);
 
         // ButterKnife
         ButterKnife.inject(this);
@@ -120,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements KassyGestureManag
     }
 
     /**
-     * From KassyGestureManager
+     * From TwistGestureManager
      *
      * @param gestureType
      * @param gestureCount

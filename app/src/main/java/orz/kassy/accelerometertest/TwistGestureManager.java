@@ -21,7 +21,7 @@ import java.util.TimerTask;
 /**
  * Created by kashimoto on 16/04/07.
  */
-public class KassyGestureManager {
+public class TwistGestureManager {
 
     private static final String TAG = "Gesture";
     private static final int NON_DETECTION_TIME = 600;
@@ -89,7 +89,7 @@ public class KassyGestureManager {
      * @param context
      * @param listener
      */
-    public KassyGestureManager(Context context, GestureListener listener) {
+    public TwistGestureManager(Context context, GestureListener listener) {
         mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
         mListener = listener;
         mHandler = new Handler();
