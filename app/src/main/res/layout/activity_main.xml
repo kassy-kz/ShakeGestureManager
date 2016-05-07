@@ -12,6 +12,7 @@
     tools:context="orz.kassy.accelerometertest.MainActivity">
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -96,6 +97,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -179,6 +181,7 @@
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -221,22 +224,26 @@
     </LinearLayout>
 
     <TextView
+        android:visibility="gone"
         android:layout_marginTop="16dp"
         android:id="@+id/txtPitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="pitch : "/>
     <TextView
+        android:visibility="gone"
         android:id="@+id/txtRoll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="roll : "/>
     <TextView
+        android:visibility="gone"
         android:id="@+id/txtRoll2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="roll2 : "/>
     <TextView
+        android:visibility="gone"
         android:id="@+id/txtAzimuth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -244,13 +251,14 @@
 
     <Button
         android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
         android:text="start"/>
     <Button
         android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
         android:text="stop"/>
 
     <TextView
